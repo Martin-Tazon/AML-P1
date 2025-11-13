@@ -67,11 +67,11 @@ We construct a consistent and leakage-free preprocessing pipeline, including the
 %    (1) The problem you are addressing: what is it, why is it important or interesting?
 Access to credit is one of the main factors influencing economic inclusion, yet loan approval decisions often rely on multiple socio-economic and financial criteria. 
 %    (2) Brief background: what makes this problem challenging?
-The presented dataset offers a great example on how financial entities rate their customers based on the data they have from them. There are two variables in the dataset that have been fabricated for this propose, "Credit Score" which is a financial risk score calculated from credit information by means of a standardized formula, and "Points". This last variable turns out to be the deciding factor used to determine the approval since it linearly separates the data in only one dimension. We will opt to use this variable or not depending on whether it has pedagogical meaning for the discussed model. %NOT SURE ABOUT THIS%
+The presented dataset offers a greate example on how financial entityes rate their customers based on the data they have from them. There are two variables in the dataset that have been fabricated for this perpuse, "Credit Score" which is a financial riks score calculated from credit information by means of a standarized formula, and "Points". This last varible turns out to be the deciding factor used to determine the approval since it linearly separates the data in only one dimension. We will opt to use this variable or not depending on whather it has pedagogical meaning for the discused model. %NOT SURE ABOUT THIS%
 
 %    (3) Your approach: what methods from the course are you applying? (mention Part I/II/III)
 The dataset used in this work includes mostly numerical features, with only one ordinal features describing applicants’ profiles and their corresponding loan approval outcomes. 
-Such data naturally involves uncertainty and feature correlations, making it suitable for exploring the concepts introduced in \emph{Part I} of the course, namely Bayesian reasoning, Generalized Linear Models (GLMs), and linear discriminant methods. For completeness we will fabricate a categorical feature by classifying the applicants by their work experience.\\
+Such data naturally involves uncertainty and feature correlations, making it suitable for exploring the concepts introduced in \emph{Part I} of the course, namely Bayesian reasoning, Generalized Linear Models (GLMs), and linear discriminant methods. For completeness we will fabricate a categorcal feature by classfinig the applicants by their work experience.\\
 
 We focus on three complementary approaches:
 \begin{itemize}
@@ -89,7 +89,7 @@ We aim to analyze how each algorithm behaves on the same financial dataset, disc
 %    (5) Structure: briefly outline the rest of the document ("The rest of this report is organized as follows...")
 The rest of this report is organized as follows. 
 Section~\ref{sec:problem} formalizes the prediction problem. 
-Section~\ref{sec:related} briefly reviews related works and previous approaches. % I would delete.
+Section~\ref{sec:related} briefly reviews related works and previous approaches. % I would delte.
 Section~\ref{sec:data} describes the dataset and preprocessing pipeline. 
 Section~\ref{sec:methodology} presents the applied methods and experimental setup. 
 Section~\ref{sec:discussion} discusses the results and insights. 
@@ -104,6 +104,9 @@ Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspect
     % (2) Use mathematical notation appropriately but concisely.
     % (3) Make sure notation is clear
     %[Formal problem statement here]
+
+
+    
     \section{Related Work}
     \label{sec:related}
     % GUIDANCE:   
@@ -154,7 +157,7 @@ A careful understanding of the data and its preparation is essential to ensure t
 %    
 %    A well-formatted table summarizing dataset characteristics is very useful here. \emph{See the project guide for more details}.
     
-The dataset, entitled \emph{\href{https://www.kaggle.com/datasets/anishdevedward/loan-approval-dataset}{Loan Approval Dataset}}, was obtained from Kaggle and contains information about applicants and their corresponding loan approval status. Upon inspecting the details of the data we found it to be artificially generated using Faker Library.
+The dataset, entitled \emph{\href{https://www.kaggle.com/datasets/anishdevedward/loan-approval-dataset}{Loan Approval Dataset}}, was obtained from Kaggle and contains information about applicants and their corresponding loan approval status. Upon inspcting the details of the data we found it to be artificially generated using Faker Library.
 It includes both numerical and categorical features that describe socio-economic and financial characteristics such as income, credit score, years employed, and loan amount. 
 The target variable indicates whether a loan application was approved or not, making this a binary classification problem.\\
 
@@ -176,7 +179,7 @@ No missing data or outliers were detected, which simplified preprocessing and en
             \midrule
             Number of observations & $n$ & 2,000  \\
             Number of features & $d$ & 5 \\
-            Feature types & continuous & Income / Credit score / Loan amount / Years employed / Points \\
+            Feature types & continuous & Income / Credit score / Loan amount / Years employed / Points\\
             Number of classes & $C$ & 2 (Approved / Rejected) \\
             Class distribution & balanced & Approved : 56.05\% / Rejected : 43.95\% \\
             Missing values & percentage & 0\% \\
@@ -215,13 +218,13 @@ No outliers or implausible values were observed.\\
 
 As shown in Figure~\ref{fig:boxplots}, loan approval is strongly associated with higher values of \texttt{income}, \texttt{credit\_score}, and \texttt{points}, confirming the relevance of financial stability indicators in credit assessment.
 By contrast, \texttt{loan\_amount} and \texttt{years\_employed} display weaker class separation, suggesting they contribute less to the predictive task.\\
-The feature \texttt{points} is special since the classes can be linearly separated by only looking at this variable, suggesting that this is an indicator computed by the financial entity to decide weather a loan should be accepted or not.
+The feature \texttt{points} is special since the classes can be linearly separated by only looking at this variable, suggesting that this is an indicator computed by the financial entity to decide weather a loand should be accepted or not.
 
     % (2) Identification of patterns, outliers, correlations
 \paragraph{Correlation analysis.}
 To assess potential redundancy and feature interdependence, the Pearson correlation matrix was computed for all numerical variables (Figure~\ref{fig:corr}). 
 The analysis reveals a strong positive correlation ($r \approx 0.74$) between \texttt{credit\_score} and \texttt{points}, and a moderate one ($r \approx 0.45$) between \texttt{income} and \texttt{points}. 
-These relationships are expected given the shared financial nature of the indicators and it is consistent with  the theory of the \texttt{points} feature being a combination of the other metric to create a final de metric upon which the entity takes decisions.
+These relationships are expected given the shared financial nature of the indicators and it is consistent with  the theory of the \texttt{points} feature being a combination of the other metric to create a final de matric upon wich the entity takes decisions.
 Importantly, the correlation values remain below critical thresholds, indicating no severe multicollinearity that would compromise model interpretability or stability.\\
 
 \begin{figure}[H]
@@ -234,8 +237,8 @@ Importantly, the correlation values remain below critical thresholds, indicating
 Overall, the exploratory analysis confirms that the dataset is clean, balanced, and well-suited for evaluating probabilistic and linear classification methods.
 However, two decisions where taken at this stage:
 \begin{enumerate}
-    \item Since the inclusion of the feature \texttt{points} into the models may lead to perfect scores when those models can make use of the fact that the classes are linearly separable along this feature. The project aims to discuss the effect of leaving or excluding the variable for each modeling approach.
-    \item Given that the dataset lacks categorical variables, a new variable was included to showcase the ability of the studied machine learning models to account for this kind of variables. This new variable was a boolean representing those applicants with less than 10 years of experience.\\
+    \item Since the inclussion of the feature \texttt{points} into the models may lead to perfect scores when those models can make use of the fact that the classes are linearly separable along this feature. The project aims to discuss the effect of leaving or excluding the vairalbe for each modeling approach.
+    \item Given that the dataset lacks categorical variables, a new variable was included to showcase the ability of the studied machine learning models to account for this kind of variables. This new varible was a boolean representing those applicants with less than 10 years of experience.\\
 \end{enumerate}
 The insights gained here, particularly the correlation between key financial features, will be directly leveraged in the modeling phase to interpret each algorithm’s behavior and hopefully find out how the feature \texttt{points} was computed.
 
@@ -324,7 +327,7 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     
     [Your experimental protocol here]
     
-    \subsection{Method 1: [Method name]}
+    \subsection{Method 1: GML - Logistic Regression}
     \label{sec:method1}
     
     % GUIDANCE: For each method you apply, include:
@@ -396,13 +399,44 @@ Overall, preprocessing primarily involved removing redundant variables and apply
         \end{tabular}
     \end{table}
     
-    \subsection{Method 2: [Method name]}
+    \subsection{Method 2: Naive Bayes Classifier}
     \label{sec:method2}
+
+    This sections covers the use of the Naive Bayes Classifier when facing a binary classification problem. This modeling approach is unique compared to the others discussed in this project as it is follows a genrative approach rather than a discriminative one.\\
+    In broad terms one can think of discriminant models as trying to learn the separation between the classes by modeling $P(y|X)$, while on the other hand, generative algorithms try to learn $P(X|y)$ (and also $P(y)$). This implies that generative algorithms learn how the features are conditioned on the target class being 0 or 1 independently, and als the overall probability of each class.
+
+    Naive Bayes are a fammily of supervised machine learining algorithms based on applying the Bayes' Theorem with the 'naive' assumption of conditional independance between every parir of features given the value of the target variable.
+    These learners and classifiers can be extremely fast compared to more sophisticated methods. The decoupling of the class conditional feature distributions means that each distribution can be independently estimated as a one dimensional distribution. This in turn helps to alleviate problems stemming from the curse of dimensionality at the cost of ignoring possible feature dependancies.
+
+    Overall, Naive Bayes is knows to be a decent and efficient classifier, however they are known to perform poorly as estimators, meaning that the probability outputs are not to be taken too seriously.
     
-    % GUIDANCE: Repeat the structure above for each method you apply.
-    % Compare at least 2 methods from the corresponding course part.
+    \subsubsection{Model formulation} 
     
-    [Your description of Method 2 following the same structure as Method 1]
+    Recall The Bayes Theorem:
+    $$P(y|x_1,...,x_n) = \frac{P(y)P(x_1,...,x_n|y)}{P(x_1,...,x_n)}$$
+    
+    The model aims to make a prediction on the class given the input data, wich can be written as:
+    $$P(y|X)=P(y|x_1,...,x_n) = \frac{P(y)\cdot P(x_1,...,x_n|y)}{P(x_1,...,x_n)}$$
+
+    The 'naive' assumption of conditional independence is expressed as:
+    $$P(x_i|y,x_1,...,x_{i-1},x_{i+1},...,x_n) = P(x_i|y)$$
+    And when applied into the Bayes Theorem $\forall i$ yelds:
+    
+    $$P(y|x_1,...,x_n)=\frac{P(y)\prod_{i=1}^n P(x_i|y)}{P(x_1,...,x_n)}$$
+
+    Since $P(x_1,...,x_n)$ is constant given the input, we can simpligy and derive the following classification rule:
+    $$ P(y|x,...,x_n) \propto P(y)\prod_{i=1}^nP(x_i|y) \implies \hat{y} = argmax_yP(y)\prod_{i=1}^nP(x_i|y) $$
+
+    One can use Maximum A Posteriori estimation to estimate $P(x_i|y)$ and $P(y)$, where the later is the relative frequency of class $y$ in the trining set. 
+
+    \subsubsection{Implementation details}
+    The different naive Bayes classifiers differ mainly by the assumptions they make regarding the distribution of $P(x_i|y)$. Given the continious nature of the selected dataset, the Gausian Naive Bayes Classifier was used. This means that the likelihood of the features is assumed to be Gaussian:
+    $$P(x_i|y) = \frac{1}{\sqrt{2\pi\sigma^2_y}}\cdot\exp{\left( -\frac{(x_i-\mu_y)^2}{2\sigma^2_y}\right)}$$
+
+    The numerical implementation of the model computes the logarithm of the probabilities instead of the real probabilites to avoid underflow problems. This results in changing the $\prod$ by $\sum$.
+
+   
+    \subsection{Method 3: Support Vector Machines}
     
     \subsection{Comparison framework}
     \label{sec:comparison}
