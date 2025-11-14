@@ -402,13 +402,13 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     \subsection{Method 2: Naive Bayes Classifier}
     \label{sec:method2}
 
-    This sections covers the use of the Naive Bayes Classifier when facing a binary classification problem. This modeling approach is unique compared to the others discussed in this project as it is follows a genrative approach rather than a discriminative one.\\
-    In broad terms one can think of discriminant models as trying to learn the separation between the classes by modeling $P(y|X)$, while on the other hand, generative algorithms try to learn $P(X|y)$ (and also $P(y)$). This implies that generative algorithms learn how the features are conditioned on the target class being 0 or 1 independently, and als the overall probability of each class.
+    This sections covers the use of the Naive Bayes Classifier when facing a binary classification problem. This modeling approach is unique compared to the others discussed in this project as it follows a genrative approach rather than a discriminative one.\\
+    In broad terms one can think of discriminant models as trying to learn the separation between the classes by modeling $P(y|X)$, while on the other hand, generative algorithms try to learn $P(X|y)$ (and also $P(y)$). This implies that generative algorithms learn how the features are conditioned on the target class being 0 or 1.
 
     Naive Bayes are a fammily of supervised machine learining algorithms based on applying the Bayes' Theorem with the 'naive' assumption of conditional independance between every parir of features given the value of the target variable.
-    These learners and classifiers can be extremely fast compared to more sophisticated methods. The decoupling of the class conditional feature distributions means that each distribution can be independently estimated as a one dimensional distribution. This in turn helps to alleviate problems stemming from the curse of dimensionality at the cost of ignoring possible feature dependancies.
+    These classifiers can be extremely fast compared to more sophisticated methods. The decoupling of the class conditional feature distributions means that each distribution can be independently estimated as a one dimensional distribution. This in turn helps to alleviate problems stemming from the curse of dimensionality at the cost of ignoring possible feature dependancies.
 
-    Overall, Naive Bayes is knows to be a decent and efficient classifier, however they are known to perform poorly as estimators, meaning that the probability outputs are not to be taken too seriously.
+    Overall, Naive Bayes is known to be a decent and efficient classifier, however they are known to perform poorly as estimators, meaning that the probability outputs are not to be taken too seriously.
     
     \subsubsection{Model formulation} 
     
@@ -434,6 +434,9 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     $$P(x_i|y) = \frac{1}{\sqrt{2\pi\sigma^2_y}}\cdot\exp{\left( -\frac{(x_i-\mu_y)^2}{2\sigma^2_y}\right)}$$
 
     The numerical implementation of the model computes the logarithm of the probabilities instead of the real probabilites to avoid underflow problems. This results in changing the $\prod$ by $\sum$.
+
+    The only parameter the model has is \texttt{var\_smoothing} which is the portion of the largest variance of all features that is added to variances for calculation stability. Several models were fitter for different values for this parameter but the obtained results were very similar so the default value was used in the final model.
+    % Reference https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB
 
    
     \subsection{Method 3: Support Vector Machines}
@@ -517,6 +520,44 @@ Overall, preprocessing primarily involved removing redundant variables and apply
         % \caption{Learning curves showing training and validation accuracy vs. training set size. Both methods show good generalization with small gap between training and validation curves. Method 2 benefits more from additional data, consistent with its higher capacity.}
         % \label{fig:learning}
         % \end{figure}
+
+    \subsubsection{Naive Bayes}
+The model was fitted without using the \texttt{points} feature.
+Figure \ref{tab:NB_conf_mat} shows the confusion matrix obtained when the model was used to predict the test set. At a first glance one can see the model shows very good performance as it makes very few missclassifications. It is impresive how this level of accuracy is achived dispite not considering feature interactions.
+The values oftained for Precission, Recal and F1-Score for the possitive class are: $0.9$, $0.89$ and $0.89$ respectively.\\
+
+\begin{table}[ht]
+ \centering
+ \caption{Confussion matirx of Naive Bayes Classifier.}
+ \label{tab:NB_conf_mat}
+         \begin{tabular}{@{}lcccc@{}}
+            \toprule
+            & Predicted True & Predicted False \\
+            \midrule
+            Actual True & 206 & 18 \\
+            Actual False & 20 & 156 \\
+            \bottomrule
+        \end{tabular}
+\end{table}
+
+In addition to checking its performance we also analyzed the distributions obtained for the two classes. Table \ref{tab:NB_dists} shows the estimated values for the mean and variance of the gausian distributions for $P(X|y)$ the model learned from the data. The model also provides the values for the prior probabilities of each class: True is $0.4394$ and False is $0.5606$.
+
+    \begin{table}[ht]
+        \centering
+        \caption{Gausian distribution parameters ($\mu$,$\sigma^2$) learned by the model}
+        \label{tab:NB_dists}
+        \begin{tabular}{@{}lcccc@{}}
+            \toprule
+            \textbf{Class} & \textbf{Income} & \textbf{Credit Score} & \textbf{Loan Amount} & \textbf{Years Employed} \\
+            \midrule
+            True & ($100179.394$, $32005.074$) & ($702.168$, $116.514$) & ($22559.275$, $14869.246$) & ($22.060$, $11.055$) \\
+            False & ($82527.957$, $34339.648$) & ($471.008$, $109.522$) & ($27209.9184$, $13461.882$) & ($19.266$, $12.108$) \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
+
+
     
     \subsection{Model selection and generalization error}
     \label{sec:final-model}
