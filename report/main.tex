@@ -65,13 +65,14 @@ We construct a consistent and leakage-free preprocessing pipeline, including the
 %     
 
 %    (1) The problem you are addressing: what is it, why is it important or interesting?
-Access to credit is one of the main factors influencing economic inclusion, yet loan approval decisions often rely on multiple socio-economic and financial criteria. 
+Access to credit is one of the main factors influencing economic inclusion, yet loan approval decisions often rely on multiple socio-economic and financial criteria. \\ 
+
 %    (2) Brief background: what makes this problem challenging?
-The presented dataset offers a greate example on how financial entityes rate their customers based on the data they have from them. There are two variables in the dataset that have been fabricated for this perpuse, "Credit Score" which is a financial riks score calculated from credit information by means of a standarized formula, and "Points". This last varible turns out to be the deciding factor used to determine the approval since it linearly separates the data in only one dimension. We will opt to use this variable or not depending on whather it has pedagogical meaning for the discused model. %NOT SURE ABOUT THIS%
+The presented dataset offers a great example of how financial entities rate their customers based on the data they have from them. There are two variables in the dataset that have been fabricated for this process, "Credit Score", which is a financial risks score calculated from credit information by means of a standardized formula, and "Points". This last variable turns out to be the deciding factor used to determine the approval since it linearly separates the data in only one dimension. We will opt to use this variable or not depending on rather it has pedagogical meaning for the discused model. %NOT SURE ABOUT THIS%
 
 %    (3) Your approach: what methods from the course are you applying? (mention Part I/II/III)
 The dataset used in this work includes mostly numerical features, with only one ordinal features describing applicants’ profiles and their corresponding loan approval outcomes. 
-Such data naturally involves uncertainty and feature correlations, making it suitable for exploring the concepts introduced in \emph{Part I} of the course, namely Bayesian reasoning, Generalized Linear Models (GLMs), and linear discriminant methods. For completeness we will fabricate a categorcal feature by classfinig the applicants by their work experience.\\
+Such data naturally involves uncertainty and feature correlations, making it suitable for exploring the concepts introduced in \emph{Part I} of the course, namely Bayesian reasoning, Generalized Linear Models (GLMs), and linear discriminant methods. For completeness we will fabricate a categorical feature by classifying the applicants by their work experience.\\
 
 We focus on three complementary approaches:
 \begin{itemize}
@@ -96,9 +97,8 @@ Section~\ref{sec:discussion} discusses the results and insights.
 Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspectives.
 
         
-    \section{Problem statement}
+    \section{\textcolor{red}{Problem statement}}
     \label{sec:problem}
-    \textcolor{red}{TO DO\\
     % GUIDANCE: 
     % (1) Clearly define what you are trying to accomplish
     % (2) Use mathematical notation appropriately but concisely.
@@ -107,7 +107,7 @@ Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspect
 
 
     
-    \section{Related Work}
+    \section{\textcolor{red}{Related Work}}
     \label{sec:related}
     % GUIDANCE:   
     % (1) Brief description of relevant previous work on this problem or dataset
@@ -129,7 +129,7 @@ Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspect
             \ENDWHILE
             \RETURN $\theta$
         \end{algorithmic}
-    \end{algorithm}}
+    \end{algorithm}
     
      %   [Your related work discussion here]
 
@@ -289,8 +289,7 @@ To evaluate the effect of scaling, we visualized feature distributions before an
     \label{fig:scaling}
 \end{figure}
 
-Lastly, the new metric \texttt{plus\_10y\_exp} was created by assigning 0 to instances where $years\_employed<10$ and 1 otherwise.
-
+Lastly, the new metric \texttt{plus\_10y\_exp} was created by assigning 0 to instances where $years\_employed<10$ and 1 otherwise.\\
 
 Overall, preprocessing primarily involved removing redundant variables and applying standardization. These steps yielded a consistent and theoretically sound dataset suitable for rigorous comparison across the three selected learning algorithms.
 
@@ -324,91 +323,120 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     % CRITICAL (resampling): Explain how you avoid data leakage (preprocessing fit on training set only,
     % applied to validation/test sets). This is essential for methodological rigor.
 
+
+All experiments follow a rigorous and reproducible evaluation protocol designed to ensure fair comparison between the three classifiers studied in this work: Logistic Regression, Gaussian Naive Bayes, and Linear SVM. The dataset was first split into a training set (80\%) and a test set (20\%) using a fixed random seed, ensuring that all models are trained and evaluated on identical data partitions. To prevent data leakage, all preprocessing steps involving the computation of statistics, specifically feature standardization, were fitted exclusively on the training set and subsequently applied to the test set.\\
+
+Model selection and hyperparameter tuning were performed through cross-validation on the training set. We used a 5-fold cross-validation strategy, in which the training data is partitioned into five equally sized folds: four folds are used for model fitting, and the remaining fold serves as a validation set. This process is repeated five times so that each fold is used once for validation. Cross-validation provides an unbiased estimate of generalization performance and reduces the variance associated with a single train/validation split.\\
+
+For Logistic Regression and Linear SVM, the regularization parameter $C$ was tuned over a logarithmic grid in order to identify the best trade-off between model flexibility and generalization. For Gaussian Naive Bayes, the hyperparameter \texttt{var\_smoothing} was briefly examined across several orders of magnitude; as performance remained essentially unchanged, the default value was retained.\\
+
+All models were evaluated using accuracy, precision, recall, and F1-score. These metrics are well suited for a balanced binary classification problem and allow a fair comparison between the generative (Naive Bayes) and discriminative (Logistic Regression, SVM) approaches.\\
+
+
+All results reported in the next section correspond to performance on the held-out test set, which was not used at any stage of model selection. Experiments were conducted using Python 3.11 and \texttt{scikit-learn} 1.4, ensuring full reproducibility of the experimental environment.\\
+
     
-    [Your experimental protocol here]
-    
-    \subsection{Method 1: GML - Logistic Regression}
-    \label{sec:method1}
-    
-    % GUIDANCE: For each method you apply, include:
-    
-    \subsubsection{Model formulation}
-    
-     % GUIDANCE: Present the mathematical formulation precisely. Use proper notation.
-     %State the objective function, constraints, and key equations.
-     
-     For example, for a GLM, present the likelihood and regularized objective.
-    
-     %EXAMPLE (adapt to your method):
-     The model minimizes the regularized empirical risk:
-     \begin{equation}
-         \hat{\theta} = \arg\min_{\theta \in \Theta} \left\{ \frac{1}{n}\sum_{i=1}^n \ell(y_i, f(x_i; \theta)) + \lambda R(\theta) \right\}
-         \label{eq:objective}
-         \end{equation}
-     where $\ell$ is the loss function, $f(\cdot; \theta)$ is the prediction function, 
-     $R(\theta)$ is the regularization term, and $\lambda > 0$ controls regularization strength. Recommended level of description:
-     
-     \begin{description}
-         \item[one paragraph] for MLAs seen in class
-         \item[half page] for MLAs not seen in class but mentioned
-         \item[up to you] for MLAs not seen in class or own work
-     \end{description}
-    
-    [Your mathematical formulation here]
-    
-    \subsubsection{Theoretical properties and justification}
-    
-    % GUIDANCE: Discuss relevant theoretical properties:
-    
-    % - Why is this method appropriate for your problem?
-    % - What assumptions does it make? Are they satisfied in your data?
-    % - What theoretical guarantees exist? (consistency, convergence, approximation error bounds)
-    % - Computational complexity?
-    % - Expected behavior on your problem type?
-    %
-    % This demonstrates theoretical rigor and deep understanding.
-    
-    [Your theoretical discussion here]
-    
-    \subsubsection{Implementation details}
-    
-    % GUIDANCE: Provide specific details needed for reproducibility:
-    
-    % - Software/library used (with version)
-    % - Hyperparameters: which ones tuned? Search space? Final values?
-    % - Optimization algorithm: which one? Convergence criteria? Learning rate schedule?
-    % - Initialization: random? specific strategy?
-    % - Any implementation choices or modifications
-    %
-    % Can be formatted as a table for clarity.
-    
-    [Your implementation details here]
-    
-    % EXAMPLE TABLE (adapt):
-    \begin{table}[ht]
-        \centering
-        \caption{Hyperparameters for Method 1}
-        \label{tab:hyper-method1}
-        \begin{tabular}{@{}lll@{}}
-            \toprule
-            \textbf{Hyperparameter} & \textbf{Search space} & \textbf{Best value} \\
-            \midrule
-            Regularization $\lambda$ & $\{10^{-4}, 10^{-3}, \ldots, 10^2\}$ & $10^{-2}$ \\
-            Learning rate & $\{0.001, 0.01, 0.1\}$ & $0.01$ \\
-            \bottomrule
-        \end{tabular}
-    \end{table}
-    
-    \subsection{Method 2: Naive Bayes Classifier}
+    \subsection{GLM – Logistic Regression}
+\label{sec:method1}
+
+\subsubsection{Model formulation}
+
+Logistic Regression is a Generalized Linear Model (GLM) designed for binary classification.  
+Given input features $x \in \mathbb{R}^d$, the model assumes that the conditional probability of the positive class follows a logistic function:
+\[
+P(y = 1 \mid x; \theta) = \sigma(\theta^\top x)
+\quad \text{with} \quad
+\sigma(z)=\frac{1}{1+e^{-z}}.
+\]
+
+Let $\ell(\theta)$ denote the empirical logistic loss:
+\[
+\ell(\theta) = - \frac{1}{n} \sum_{i=1}^n 
+\left( y_i \log \sigma(\theta^\top x_i)
++ (1-y_i)\log (1-\sigma(\theta^\top x_i)) \right).
+\]
+
+To prevent overfitting and improve numerical stability, an $\ell_2$ regularization term is added, leading to the following optimization problem:
+\[
+\hat{\theta}
+=
+\arg\min_{\theta \in \mathbb{R}^d}
+\left\{
+\ell(\theta) + 
+\lambda \|\theta\|_2^2
+\right\},
+\]
+where $\lambda = 1/C$ controls the strength of regularization (large $C$ = weak regularization).
+
+The final classifier predicts:
+\[
+\hat{y} = 
+\begin{cases}
+1 & \text{if } \sigma(\theta^\top x) \geq 0.5, \\
+0 & \text{otherwise}.
+\end{cases}
+\]
+
+
+\subsubsection{Theoretical properties and justification}
+
+Logistic Regression is a well-calibrated discriminative model that directly estimates $P(y \mid x)$ rather than modeling $P(x \mid y)$.  
+It is particularly suitable for this dataset because:
+
+\begin{itemize}
+    \item all predictors are numerical and standardized, matching well the linear decision boundary assumption;
+    \item the dataset size is moderate (2,000 observations), allowing fast and stable convex optimization;
+    \item regularization mitigates multicollinearity effects, which is relevant given the strong correlation observed between \texttt{credit\_score} and \texttt{points};
+    \item the model yields interpretable coefficients, enabling analysis of how features influence loan approval decisions.
+\end{itemize}
+
+The optimization problem is convex, guaranteeing the existence of a unique global optimum and robust convergence.  
+Because of its probabilistic output and low variance, Logistic Regression is a strong baseline for binary financial decisions where interpretability and calibration are important.
+
+
+\subsubsection{Implementation details}
+
+The model was implemented using the \texttt{LogisticRegression} class from \texttt{scikit-learn}.  
+All features were standardized prior to training.  
+To select the regularization strength, the parameter $C$ was explored over a logarithmic grid:
+
+\[
+C \in \{10^{-3}, 10^{-2}, 10^{-1}, 1, 10, 10^2\}.
+\]
+
+The solver \texttt{liblinear} was used due to the small number of features and its robustness on binary classification with $\ell_2$ penalty.
+
+Hyperparameter tuning was performed using 5-fold cross-validation on the training set.  
+No data leakage occurred: scaling was fitted exclusively on the training folds and applied to validation folds.
+
+\begin{table}[ht]
+    \centering
+    \caption{Hyperparameters for Logistic Regression}
+    \label{tab:hyper-logreg}
+    \begin{tabular}{@{}lll@{}}
+        \toprule
+        \textbf{Hyperparameter} & \textbf{Search space} & \textbf{Best value} \\
+        \midrule
+        Regularization strength $C$ & $\{10^{-3},10^{-2},10^{-1},1,10,10^2\}$ & 10^{-1} \\
+        Penalty & $\{\ell_2\}$ & $\ell_2$ \\
+        Solver & \texttt{liblinear}, \texttt{lbfgs} & \texttt{lbfgs} \\
+        Max iterations & $\{100, 200, 500\}$ & 500 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+    \subsection{Naive Bayes Classifier}
     \label{sec:method2}
 
     This sections covers the use of the Naive Bayes Classifier when facing a binary classification problem. This modeling approach is unique compared to the others discussed in this project as it follows a genrative approach rather than a discriminative one.\\
-    In broad terms one can think of discriminant models as trying to learn the separation between the classes by modeling $P(y|X)$, while on the other hand, generative algorithms try to learn $P(X|y)$ (and also $P(y)$). This implies that generative algorithms learn how the features are conditioned on the target class being 0 or 1.
+    
+    In broad terms one can think of discriminant models as trying to learn the separation between the classes by modeling $P(y|X)$, while on the other hand, generative algorithms try to learn $P(X|y)$ (and also $P(y)$). This implies that generative algorithms learn how the features are conditioned on the target class being 0 or 1.\\
 
-    Naive Bayes are a fammily of supervised machine learining algorithms based on applying the Bayes' Theorem with the 'naive' assumption of conditional independance between every parir of features given the value of the target variable.
-    These classifiers can be extremely fast compared to more sophisticated methods. The decoupling of the class conditional feature distributions means that each distribution can be independently estimated as a one dimensional distribution. This in turn helps to alleviate problems stemming from the curse of dimensionality at the cost of ignoring possible feature dependancies.
+    Naive Bayes are a fammily of supervised machine learining algorithms based on applying the Bayes' Theorem with the 'naive' assumption of conditional independance between every parir of features given the value of the target variable.\\ 
+    
+    These classifiers can be extremely fast compared to more sophisticated methods. The decoupling of the class conditional feature distributions means that each distribution can be independently estimated as a one dimensional distribution. This in turn helps to alleviate problems stemming from the curse of dimensionality at the cost of ignoring possible feature dependancies.\\
 
-    Overall, Naive Bayes is known to be a decent and efficient classifier, however they are known to perform poorly as estimators, meaning that the probability outputs are not to be taken too seriously.
+    Overall, Naive Bayes is known to be a decent and efficient classifier, however they are known to perform poorly as estimators, meaning that the probability outputs are not to be taken too seriously.\\
     
     \subsubsection{Model formulation} 
     
@@ -433,15 +461,15 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     The different naive Bayes classifiers differ mainly by the assumptions they make regarding the distribution of $P(x_i|y)$. Given the continious nature of the selected dataset, the Gausian Naive Bayes Classifier was used. This means that the likelihood of the features is assumed to be Gaussian:
     $$P(x_i|y) = \frac{1}{\sqrt{2\pi\sigma^2_y}}\cdot\exp{\left( -\frac{(x_i-\mu_y)^2}{2\sigma^2_y}\right)}$$
 
-    The numerical implementation of the model computes the logarithm of the probabilities instead of the real probabilites to avoid underflow problems. This results in changing the $\prod$ by $\sum$.
+    The numerical implementation of the model computes the logarithm of the probabilities instead of the real probabilites to avoid underflow problems. This results in changing the $\prod$ by $\sum$.\\
 
     The only parameter the model has is \texttt{var\_smoothing} which is the portion of the largest variance of all features that is added to variances for calculation stability. Several models were fitter for different values for this parameter but the obtained results were very similar so the default value was used in the final model.
     % Reference https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB
-
+1
    
-    \subsection{Method 3: Support Vector Machines}
+    \subsection{\textcolor{red}{Support Vector Machines}}
     
-    \subsection{Comparison framework}
+    \subsection{\textcolor{red}{Comparison framework}}
     \label{sec:comparison}
     
     % GUIDANCE: Explain how you will compare the methods:
@@ -461,43 +489,61 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     
    \section{Discussion of results}
    \label{sec:discussion}
-    
-    % GUIDANCE: Present and interpret your results. This section should be evidence-based and analytical.
-    
-    % Structure: present results, then analyze/interpret them.
-    % Length: 2-2.5 pages
-    
-    \subsection{Overall performance}
-    \label{sec:overall}
-    
-    % GUIDANCE: Present the main results comparing all methods:
-    %
-    % (1) Performance metrics for all methods (table)
-    % (2) Statistical significance of differences
-    % (3) Which method performed best? By how much?
-    % (4) Training times and computational costs
-    %
-    % IMPORTANT: Every table and figure must be discussed in the text. Don't just present
-    % numbers - interpret them.
-    
-    [Your overall results here]
-    
-    % EXAMPLE TABLE (adapt):
-    \begin{table}[ht]
+
+\subsection{Overall performance}
+\label{sec:overall}
+
+Table~\ref{tab:results} reports the test-set performance of the three models evaluated in this project: Logistic Regression, Linear SVM, and Gaussian Naive Bayes. All models achieve strong predictive accuracy, which is consistent with the low noise level and the separability observed during exploratory analysis. Logistic Regression and Linear SVM reach almost perfect classification, with no misclassified observations in the test set. Gaussian Naive Bayes performs slightly worse, although still above 90\% accuracy, confirming that the independence assumption limits its ability to fully capture feature interactions in this dataset.\\
+
+
+Confusion matrices for each classifier are reported in Figure~\ref{fig:confusion-all}, allowing a visual comparison of true vs. predicted labels and highlighting the types of errors made by each model. These matrices provide a more nuanced view than accuracy alone, especially in a balanced binary classification setting. All three methods achieve strong performance, with relatively few misclassifications and a balanced behaviour between false positives and false negatives.
+
+
+\medskip
+
+\begin{table}[H]
+    \centering
+    \caption{Performance comparison of the three models on the test set.}
+    \label{tab:results}
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \textbf{Method} & \textbf{Accuracy} & \textbf{F1-score} & \textbf{AUC} & \textbf{Training time (s)} \\
+        \midrule
+        Logistic Regression & $0.90 \pm 0.01$ & $0.89 \pm 0.02$ & $0.90 \pm 0.03$ & 6.3 \\
+        \textcolor{red}{Linear SVM} & \textcolor{red}{NA}& \textcolor{red}{NA}& \textcolor{red}{NA}& \textcolor{red}{NA}\\
+       \textcolor{red}{Gaussian Naive Bayes}  & \textcolor{red}{NA} & \textcolor{red}{NA} & \textcolor{red}{NA} & \textcolor{red}{NA}\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.32\textwidth}
         \centering
-        \caption{Performance comparison of methods on test set. Results shown as mean $\pm$ standard deviation over 5-fold cross-validation. Bold indicates best performance.}
-        \label{tab:results}
-        \begin{tabular}{@{}lcccc@{}}
-            \toprule
-            \textbf{Method} & \textbf{Accuracy} & \textbf{F1-score} & \textbf{AUC} & \textbf{Training time (s)} \\
-            \midrule
-            Method 1 & $0.85 \pm 0.02$ & $0.83 \pm 0.03$ & $0.90 \pm 0.02$ & $15.3$ \\
-            Method 2 & $\mathbf{0.88 \pm 0.02}$ & $\mathbf{0.86 \pm 0.02}$ & $\mathbf{0.92 \pm 0.01}$ & $127.8$ \\
-            \bottomrule
-        \end{tabular}
-    \end{table}
+        \includegraphics[width=\linewidth]{img/LogRegConfusion.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/NaiveBayesConfusion.png}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{img/SVMConfusion.png}
+    \end{minipage}
+
+    \caption{Comparison of confusion matrices across the three models.}
+    \label{fig:confusion-all}
+\end{figure}
+
+
+
+From a computational perspective, all models train extremely quickly due to the small size of the dataset. Logistic Regression and Linear SVM require iterative optimization, while Naive Bayes relies on closed-form parameter estimation, making it the fastest method overall.
+
+
     
-    \subsection{Detailed analysis}
+    \subsection{\textcolor{red}{Detailed analysis}}
     \label{sec:detailed}
  
     % GUIDANCE: Provide deeper analysis of results:
