@@ -29,12 +29,12 @@
 \newtheorem{remark}[theorem]{Remark}
 
 %% Title information
-\title{Project nº 1: Loan Approval Prediction with Linear and Bayesian Models\\
+\title{\vspace{-1cm}Project nº 1: Loan Approval Prediction with Linear and Bayesian Models\\
     Advanced Machine Learning (MDS)}
 
-\author{Martin Tazón \and Daniel Weronski \and Martin de Peretti}
+\author{Martin Tazón \and Daniel Wero\'nski \and Martin de Peretti}
 
-\date{Date: November 11, 2025}
+\date{November 2025}
 
 \begin{document}
     
@@ -45,7 +45,7 @@
 %     GUIDANCE: The abstract should be a single paragraph (150-250 words) that concisely summarizes:
 
 %     (1) The problem you are addressing and its motivation
-We address a supervised binary classification problem: predicting loan approval from mixed tabular data containing both numerical and categorical features. Our objective is to evaluate three foundational methods from Part I of the course: a discriminative Generalized Linear Model (Logistic Regression), a Bayesian generative classifier (Naive Bayes), and a margin-based linear classifier (Linear SVM). \\
+We address a supervised binary classification problem: predicting loan approval from mixed tabular data containing numerical features. Our objective is to evaluate three foundational methods: a discriminative Generalized Linear Model (Logistic Regression), a Bayesian generative classifier (Naive Bayes), and a Support Vector Machine method (Linear and RBF). \\
 
 %     (2) The main methods/techniques you applied (from the corresponding course part)
 % Do we care about the pipeline? Focus on the comparison of methods.
@@ -70,11 +70,11 @@ Our key finding centers on the `points' feature, which renders the problem linea
 Access to credit is one of the main factors influencing economic inclusion, yet loan approval decisions often rely on multiple socio-economic and financial criteria. \\ 
 
 %    (2) Brief background: what makes this problem challenging?
-The presented dataset offers a great example of how financial entities rate their customers based on the data they have from them. There are two variables in the dataset that have been fabricated for this process, "Credit Score", which is a financial risks score calculated from credit information by means of a standardized formula, and "Points". This last variable turns out to be the deciding factor used to determine the approval since it linearly separates the data in only one dimension. We will opt to use this variable or not depending on rather it has pedagogical meaning for the discused model. %NOT SURE ABOUT THIS%
+The presented dataset offers a great example of how financial entities rate their customers based on the data they have from them. There are two variables in the dataset that have been fabricated for this process, ``Credit Score'', which is a financial risks score calculated from credit information by means of a standardized formula, and ``Points''. This last variable turns out to be the deciding factor used to determine the approval since it linearly separates the data in only one dimension. We will opt to use this variable or not depending on rather it has pedagogical meaning for the discused model. %NOT SURE ABOUT THIS%
 
 %    (3) Your approach: what methods from the course are you applying? (mention Part I/II/III)
-The dataset used in this work includes mostly numerical features, with only one ordinal features describing applicants’ profiles and their corresponding loan approval outcomes. 
-Such data naturally involves uncertainty and feature correlations, making it suitable for exploring the concepts introduced in \emph{Part I} of the course, namely Bayesian reasoning, Generalized Linear Models (GLMs), and linear discriminant methods. For completeness we will fabricate a categorical feature by classifying the applicants by their work experience.\\
+The dataset used in this work includes mostly numerical features, with only one ordinal feature describing applicants’ profiles and their corresponding loan approval outcomes.
+Such data naturally involves uncertainty and feature correlations, making it suitable for exploring the concepts introduced in \emph{Part I} of the course, namely Bayesian reasoning, Generalized Linear Models (GLMs), and linear discriminant methods. \\
 
 We focus on three complementary approaches:
 \begin{itemize}
@@ -90,16 +90,16 @@ The goal of this project is therefore to link theoretical understanding with pra
 We aim to analyze how each algorithm behaves on the same financial dataset, discuss their assumptions, and evaluate their ability to make reliable and interpretable predictions.\\
 
 %    (5) Structure: briefly outline the rest of the document ("The rest of this report is organized as follows...")
-The rest of this report is organized as follows. 
-Section~\ref{sec:problem} formalizes the prediction problem. 
-Section~\ref{sec:related} briefly reviews related works and previous approaches. % I would delte.
-Section~\ref{sec:data} describes the dataset and preprocessing pipeline. 
-Section~\ref{sec:methodology} presents the applied methods and experimental setup. 
-Section~\ref{sec:discussion} discusses the results and insights. 
-Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspectives.
+%The rest of this report is organized as follows.
+%Section~\ref{sec:problem} formalizes the prediction problem.
+%Section~\ref{sec:related} briefly reviews related works and previous approaches. % I would delte.
+%Section~\ref{sec:data} describes the dataset and preprocessing pipeline.
+%Section~\ref{sec:methodology} presents the applied methods and experimental setup.
+%Section~\ref{sec:discussion} discusses the results and insights.
+%Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspectives.
 
         
-    \section{\textcolor{red}{Problem statement}}
+    \section{Problem statement}
     \label{sec:problem}
     % GUIDANCE: 
     % (1) Clearly define what you are trying to accomplish
@@ -121,35 +121,25 @@ A secondary objective is to compare the performance of different model families 
 
 
     
-    \section{\textcolor{red}{Related Work}}
-    \label{sec:related}
-    % GUIDANCE:   
+
+   \section{Related Work}
+\label{sec:related}
+
+    % GUIDANCE:
     % (1) Brief description of relevant previous work on this problem or dataset
     % (2) How your work relates to or differs from previous approaches
     % (3) What you adopt or improve upon from related work
     % DO NOT copy/paste from papers - synthesize and cite properly!
     % EXAMPLE ALGORITHM IN PSEUDOCODE (adapt or remove, use for all algorithms throughout the work)
     % DO NOT display trivial non-informative pseudocode and make it match the notation used in the text
-    \begin{algorithm}
-        \caption{Algorithm name}
-        \label{alg:example}
-        \begin{algorithmic}[1]
-            \REQUIRE Input data $X$, parameters $\theta_0$
-            \ENSURE Optimized parameters $\theta^*$
-            \STATE Initialize $\theta \leftarrow \theta_0$
-            \WHILE{not converged}
-            \STATE Compute gradient $g \leftarrow \nabla_\theta L(\theta)$
-            \STATE Update $\theta \leftarrow \theta - \alpha g$
-            \ENDWHILE
-            \RETURN $\theta$
-        \end{algorithmic}
-    \end{algorithm}
-    
-     %   [Your related work discussion here]
+
+The task of predicting loan approval is a widely studied binary classification problem~\cite{sheikh2020approach, arun2016loan, sinap2024comparative}. A common and well-established approach in the literature is to perform a comparative analysis of various machine learning algorithms to identify the most effective and interpretable model. These studies frequently compare foundational classifiers, such as the ones used in this project, against more complex ensemble methods like Random Forest.
+
+Many studies have specifically focused on comparing Logistic Regression and Support Vector Machines for this task, given their robustness in binary classification. In these comparisons, Logistic Regression is often highlighted for its simplicity and high interpretability, which is particularly valuable for financial decision-making where understanding the influence of features (like income or credit history) is crucial. Other works have included Naive Bayes in the comparison, noting that this trio of algorithms (NB, LR, and SVM) represents reliable, popular, and foundational supervised learning methods for classification.\\
+
+Our work connects to the core theoretical comparison between generative and discriminative models. Naive Bayes is a classic generative model, as it learns the joint probability distribution $P(\mathbf{x}, y)$ by modeling the likelihood $P(\mathbf{x}|y)$ and the prior $P(y)$. In contrast, Logistic Regression and SVMs are discriminative models, as they directly learn the conditional probability $P(y|\mathbf{x})$ or the decision boundary between classes, respectively. This distinction is central to financial tasks; discriminative models are often preferred for credit scoring and fraud detection due to their typically higher predictive accuracy.
 
 
-
-    
     \section{Data and Preprocessing}
     \label{sec:data}
     
@@ -171,7 +161,7 @@ A careful understanding of the data and its preparation is essential to ensure t
 %    
 %    A well-formatted table summarizing dataset characteristics is very useful here. \emph{See the project guide for more details}.
     
-The dataset, entitled \emph{\href{https://www.kaggle.com/datasets/anishdevedward/loan-approval-dataset}{Loan Approval Dataset}}, was obtained from Kaggle and contains information about applicants and their corresponding loan approval status. Upon inspcting the details of the data we found it to be artificially generated using Faker Library.
+The dataset, titled \textit{Loan Approval Dataset}~\cite{devedward2024loan}, was obtained from Kaggle and contains information about applicants and their corresponding loan approval status. Upon inspcting the details of the data we found it to be artificially generated using Faker Library.
 It includes both numerical and categorical features that describe socio-economic and financial characteristics such as income, credit score, years employed, and loan amount. 
 The target variable indicates whether a loan application was approved or not, making this a binary classification problem.\\
 
@@ -183,26 +173,7 @@ No missing data or outliers were detected, which simplified preprocessing and en
 
 
 % Should update to new feature.
-    \begin{table}[H]
-        \centering
-        \caption{Dataset characteristics after cleaning.}
-        \label{tab:dataset}
-        \begin{tabular}{@{}lll@{}}
-            \toprule
-            \textbf{Property} & \textbf{Variable} & \textbf{Value} \\
-            \midrule
-            Number of observations & $n$ & 2,000  \\
-            Number of features & $d$ & 5 \\
-            Feature types & continuous & Income / Credit score / Loan amount / Years employed / Points\\
-            Number of classes & $C$ & 2 (Approved / Rejected) \\
-            Class distribution & balanced & Approved : 56.05\% / Rejected : 43.95\% \\
-            Missing values & percentage & 0\% \\
-            Outliers detected & & None \\
-            Source & & \href{https://www.kaggle.com/datasets/anishdevedward/loan-approval-dataset}{Kaggle} \\
-            \bottomrule
-        \end{tabular}
-    \end{table}
-    
+
 \subsection{Exploratory data analysis}
 \label{sec:eda}
 
@@ -241,19 +212,9 @@ The analysis reveals a strong positive correlation ($r \approx 0.74$) between \t
 These relationships are expected given the shared financial nature of the indicators and it is consistent with  the theory of the \texttt{points} feature being a combination of the other metric to create a final de matric upon wich the entity takes decisions.
 Importantly, the correlation values remain below critical thresholds, indicating no severe multicollinearity that would compromise model interpretability or stability.\\
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{img/correlationMatrix.png}
-    \caption{Correlation matrix of numerical features. A strong relation is observed between credit score and points.}
-    \label{fig:corr}
-\end{figure}
 
 Overall, the exploratory analysis confirms that the dataset is clean, balanced, and well-suited for evaluating probabilistic and linear classification methods.
-However, two decisions where taken at this stage:
-\begin{enumerate}
-    \item Since the inclussion of the feature \texttt{points} into the models may lead to perfect scores when those models can make use of the fact that the classes are linearly separable along this feature. The project aims to discuss the effect of leaving or excluding the vairalbe for each modeling approach.
-    \item Given that the dataset lacks categorical variables, a new variable was included to showcase the ability of the studied machine learning models to account for this kind of variables. This new varible was a boolean representing those applicants with less than 10 years of experience.\\
-\end{enumerate}
+However, since the inclusion of the feature \texttt{points} into the models may lead to perfect scores when those models can make use of the fact that the classes are linearly separable along this feature. The project aims to discuss the effect of leaving or excluding the vairalbe for each modeling approach.
 The insights gained here, particularly the correlation between key financial features, will be directly leveraged in the modeling phase to interpret each algorithm’s behavior and hopefully find out how the feature \texttt{points} was computed.
 
 
@@ -293,19 +254,6 @@ x_i' = \frac{x_i - \mu_i}{\sigma_i}
 where $\mu_i$ and $\sigma_i$ are the mean and standard deviation estimated on the training set. This transformation centers the data around zero with unit variance, preventing large-scale features from dominating the optimization. It stabilizes learning for Logistic Regression and SVM and aligns feature variances with the probabilistic assumptions of Gaussian Naive Bayes.\\
 
 To evaluate the effect of scaling, we visualized feature distributions before and after standardization (Figure~\ref{fig:scaling}). For instance, \texttt{income} originally exhibited a large range and mild right-skewness typical of financial data. After standardization, its distribution is re-centered and rescaled, preserving its overall shape and relative ordering. This confirms that the transformation harmonizes feature magnitudes without distorting their underlying structure, ensuring that all dimensions contribute comparably to model training.\\
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{img/scaling.png}
-    \caption{Effect of standardization on two numerical features. 
-    The distributions are centered around zero and rescaled to unit variance, 
-    preserving the shape of the data while ensuring comparability across features.}
-    \label{fig:scaling}
-\end{figure}
-
-Lastly, the new metric \texttt{plus\_10y\_exp} was created by assigning 0 to instances where $years\_employed<10$ and 1 otherwise.\\
-
-Overall, preprocessing primarily involved removing redundant variables and applying standardization. These steps yielded a consistent and theoretically sound dataset suitable for rigorous comparison across the three selected learning algorithms.
 
 
     \section{Methodology}
@@ -600,37 +548,11 @@ The results clearly differentiate the models. The RBF-Kernel SVM achieves the hi
         Logistic Regression & $0.90$ & $0.90$ & $0.97$ & $3.8$ \\
         Gaussian Naive Bayes & $0.88$ & $0.88$ & $0.95$ & 0.05 \\
         Linear SVM & $0.90$ & $0.90$ & $0.97$ & $3.1$ \\
-        RBF-Kernel SVM & $\mathbf{0.94}$ & $\mathbf{0.94}$ & $\mathbf{0.99}$ & $4.2$4.2$ \\
+        RBF-Kernel SVM & $\mathbf{0.94}$ & $\mathbf{0.94}$ & $\mathbf{0.99}$ & $4.2$ \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{img/LogRegConfusion.png}
-        \label{fig:conf-logreg}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        \includegraphics[width=\linewidth]{img/NaiveBayesConfusion.png}
-        \label{fig:conf-nb}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.32\textwidth}
-        \centering
-        % This is the file your log reported as missing.
-        % I am assuming it should be the RBF SVM, which was the best.
-        % Please save the RBF plot as 'img/SVMConfusion.png'
-        \includegraphics[width=\linewidth]{img/SVMConfusion.png}
-        \label{fig:conf-svm-rbf}
-    \end{minipage}
-
-    \caption{Comparison of confusion matrices (Test Set). From left to right: Logistic Regression, Gaussian Naive Bayes, and RBF-Kernel SVM. The RBF SVM (right) shows the best performance.}
-    \label{fig:confusion-all}
-\end{figure}
 
 \subsection{Detailed analysis}
 \label{sec:detailed}
@@ -708,7 +630,7 @@ The model achieved a point estimage for accuracy of 0.94 on the 400 test samples
 
 Our main finding is the critical impact of the `points' feature. The exploratory analysis showed this single feature linearly separates the data, and its inclusion would have led to perfect, but trivial, classification. By removing it, we uncovered a more complex and realistic problem.
 
-The experimental results on this harder task clearly demonstrated the trade-offs between the models. The RBF-Kernel SVM achieved the highest test accuracy (0.94), confirming that the underlying relationship between the remaining financial features is non-linear. The linear models (Logistic Regression and Linear SVM) performed identically (0.90 accuracy), unable to capture this non-linearity. The Gaussian Naive Bayes model was the weakest (0.88 accuracy), likely due to its strong independence assumption being violated, as shown in the correlation matrix.
+The experimental results on this harder task clearly demonstrated the trade-offs between the models. The RBF-Kernel SVM achieved the highest test accuracy (0.94), confirming that the underlying relationship between the remaining financial features is non-linear. The linear models (Logistic Regression and Linear SVM) performed identically (0.90 accuracy), unable to capture this non-linearity. The Gaussian Naive Bayes model was the weakest (0.88 accuracy), likely due to its strong independence assumption being violated, as shown in the correlation matrix. \\
 
 This project provided a practical link between theory and application. We demonstrated the importance of rigorous preprocessing and exploratory analysis in identifying data artifacts like the `points` feature. We confirmed the theoretical differences between generative and discriminative models, and empirically showed how the kernel trick allows SVMs to solve complex non-linear problems that linear models cannot.
 
@@ -718,10 +640,85 @@ For future work, a formal statistical test could be used to confirm if the RBF-S
 
 
 
-    
-    \bibliographystyle{plain}
-%    \bibliography{references}
-    
+
+    \bibliographystyle{IEEEtran}
+    \bibliography{references}
+
+
+    \begin{appendix}
+        \begin{table}[H]
+            \centering
+            \caption{Dataset characteristics after cleaning.}
+            \label{tab:dataset}
+            \begin{tabular}{@{}lll@{}}
+                \toprule
+                \textbf{Property} & \textbf{Variable} & \textbf{Value} \\
+                \midrule
+                Number of observations & $n$ & 2,000  \\
+                Number of features & $d$ & 5 \\
+                Feature types & continuous & Income / Credit score / Loan amount / Years employed / Points\\
+                Number of classes & $C$ & 2 (Approved / Rejected) \\
+                Class distribution & balanced & Approved : 56.05\% / Rejected : 43.95\% \\
+                Missing values & percentage & 0\% \\
+                Outliers detected & & None \\
+                Source & & \href{https://www.kaggle.com/datasets/anishdevedward/loan-approval-dataset}{Kaggle} \\
+                \bottomrule
+            \end{tabular}
+        \end{table}
+
+
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.7\textwidth]{img/correlationMatrix.png}
+            \caption{Correlation matrix of numerical features. A strong relation is observed between credit score and points.}
+            \label{fig:corr}
+        \end{figure}
+
+
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.9\textwidth]{img/scaling.png}
+            \caption{Effect of standardization on two numerical features.
+            The distributions are centered around zero and rescaled to unit variance,
+                preserving the shape of the data while ensuring comparability across features.}
+            \label{fig:scaling}
+        \end{figure}
+
+
+    \begin{figure}[H]
+        \centering
+        \begin{minipage}{0.32\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{img/LogRegConfusion.png}
+            \label{fig:conf-logreg}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.32\textwidth}
+            \centering
+            \includegraphics[width=\linewidth]{img/NaiveBayesConfusion.png}
+            \label{fig:conf-nb}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.32\textwidth}
+            \centering
+            % This is the file your log reported as missing.
+            % I am assuming it should be the RBF SVM, which was the best.
+            % Please save the RBF plot as 'img/SVMConfusion.png'
+            \includegraphics[width=\linewidth]{img/SVMConfusion.png}
+            \label{fig:conf-svm-rbf}
+        \end{minipage}
+
+        \caption{Comparison of confusion matrices (Test Set). From left to right: Logistic Regression, Gaussian Naive Bayes, and RBF-Kernel SVM. The RBF SVM (right) shows the best performance.}
+        \label{fig:confusion-all}
+    \end{figure}
+
+
+
+
+    \end{appendix}
+
     % GUIDANCE ON REFERENCES:
     % - Use a .bib file for references (see references.bib template below)
     % - Cite all sources properly: papers, datasets, software packages
@@ -812,7 +809,10 @@ For future work, a formal statistical test could be used to confirm if the RBF-S
             % - ...
             
 %            [Your implementation details here if needed]
-                       
+
+
+
+
         \end{document}
         
         % ============================================================================
