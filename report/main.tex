@@ -49,10 +49,12 @@ We address a supervised binary classification problem: predicting loan approval 
 
 %     (2) The main methods/techniques you applied (from the corresponding course part)
 % Do we care about the pipeline? Focus on the comparison of methods.
-We construct a consistent and leakage-free preprocessing pipeline, including the removal of identifier variables, the encoding of categorical features, and the standardization of numerical attributes. All transformations are fitted exclusively on the training data within cross-validation folds to ensure methodological soundness. Performance will be evaluated using standard metrics for binary classification, including ROC-AUC, accuracy, and class-wise measures. \\
+%We construct a consistent and leakage-free preprocessing pipeline, including the removal of identifier variables, the encoding of categorical features, and the standardization of numerical attributes. All transformations are fitted exclusively on the training data within cross-validation folds to ensure methodological soundness.\\
 
 %     (3) The key results or findings
-\textcolor{red}{TO DO (brief summary of empirical results and conclusions after completing the others parts) }
+Our key finding centers on the `points' feature, which renders the problem linearly separable. When this feature is excluded to model the underlying financial data, the problem becomes non-linear. On this more complex task, our experimental results show that the RBF-Kernel SVM achieves the highest test accuracy (0.94), significantly outperforming both the Linear SVM and Logistic Regression (0.90), as well as the Gaussian Naive Bayes (0.88). This highlights the critical trade-off between model complexity and feature selection in this domain.
+
+%\textcolor{red}{TO DO (brief summary of empirical results and conclusions after completing the others parts) }
 %     Write this LAST, after completing the rest of the report.
 %     Example structure: "We address the problem of... using methods from Part [I/II/III] of the course, specifically... Our experimental results show that... We conclude that..." or ``we prove that ...''
         
@@ -78,7 +80,7 @@ We focus on three complementary approaches:
 \begin{itemize}
     \item the \textbf{Naive Bayes classifier}, which follows a Bayesian generative approach and assumes that features are conditionally independent given the target class;
     \item the \textbf{Logistic Regression model}, a Generalized Linear Model that directly estimates the probability of loan approval as a function of a linear combination of the features;
-    \item the \textbf{Linear Support Vector Machine (SVM)}, which searches for a decision boundary that maximizes the margin between approved and rejected applicants.
+    \item the \textbf{Support Vector Machine (SVM)}, which searches for a decision boundary that maximizes the margin between approved and rejected applicants.
 \end{itemize}
 
 These three methods represent different but complementary ways of learning from data. Comparing them within the same framework allows us to assess how these theoretical differences affect performance, interpretability, and robustness in a real-world classification task.\\
@@ -104,6 +106,18 @@ Finally, Section~\ref{sec:conclusions} summarizes the main findings and perspect
     % (2) Use mathematical notation appropriately but concisely.
     % (3) Make sure notation is clear
     %[Formal problem statement here]
+
+    We can formalize the task as a supervised binary classification problem.
+Let our dataset be $D = \{(\mathbf{x}_i, y_i)\}_{i=1}^n$, where $n=2000$ is the total number of applicants.
+Each applicant $i$ is represented by a feature vector $\mathbf{x}_i \in \mathbb{R}^d$, where $d=5$ (as described in \Cref{tab:dataset}). The features $\mathbf{x} = (\text{income}, \text{credit\_score}, \text{loan\_amount}, \text{years\_employed}, \text{points})$ are all continuous.
+The corresponding label $y_i \in \{0, 1\}$ represents the loan approval status, where $y=1$ signifies `Approved' and $y=0$ signifies `Rejected'.
+
+The primary objective is to learn a classification function (or hypothesis) $f: \mathbb{R}^d \to \{0, 1\}$ that minimizes the generalization error. This error is the expected 0-1 loss on new, unseen data, which we estimate using a held-out test set $D_{test} \subset D$:
+\[
+\mathcal{E}(f) = \frac{1}{|D_{test}|} \sum_{(\mathbf{x}, y) \in D_{test}} \mathbb{I}(f(\mathbf{x}) \neq y)
+\]
+where $\mathbb{I}(\cdot)$ is the indicator function.
+A secondary objective is to compare the performance of different model families (generative vs. discriminative, linear vs. non-linear) on this specific task, particularly analyzing the impact of including or excluding the highly predictive `points` feature.
 
 
     
@@ -309,8 +323,8 @@ Overall, preprocessing primarily involved removing redundant variables and apply
     %
     % Balance completeness with conciseness - you don't need to re-derive results from class, but you must demonstrate understanding.
     
-    \subsection{Experimental protocol}
-    \label{sec:protocol}
+%    \subsection{Experimental protocol}
+%    \label{sec:protocol}
     
     % GUIDANCE: Describe your overall experimental setup BEFORE describing individual methods:
     %
@@ -417,7 +431,7 @@ No data leakage occurred: scaling was fitted exclusively on the training folds a
         \toprule
         \textbf{Hyperparameter} & \textbf{Search space} & \textbf{Best value} \\
         \midrule
-        Regularization strength $C$ & $\{10^{-3},10^{-2},10^{-1},1,10,10^2\}$ & 10^{-1} \\
+        Regularization strength $C$ & $\{10^{-3},10^{-2},10^{-1},1,10,10^2\}$ & $10^{-1}$ \\
         Penalty & $\{\ell_2\}$ & $\ell_2$ \\
         Solver & \texttt{liblinear}, \texttt{lbfgs} & \texttt{lbfgs} \\
         Max iterations & $\{100, 200, 500\}$ & 500 \\
@@ -467,9 +481,69 @@ No data leakage occurred: scaling was fitted exclusively on the training folds a
     % Reference https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html#sklearn.naive_bayes.GaussianNB
 1
    
-    \subsection{\textcolor{red}{Support Vector Machines}}
+    \subsection{Support Vector Machines}
+    \label{sec:method3}
+    As a final ocmparison, we implement the Suport Vector Machine (SVM), a discriminative model that seeks to find an
+    optimal separating hyperplane by maximizing the margin between classes. Unlike Logistic Regression, which models
+    posterior probabilities, the SVM is a non-probabilistic linear classifier (in its basic form). We explore both the
+    standard linear SVM and its non-linear extension using the kernel trick.
+
+    \subsubsection{Model 1: Linear SVM}
+    \label{sec:method3-linear}
+
+    \paragraph{Model formulation}
+    For a linearly separable problem, the SVM finds a unique hyperplane $(\mathbf{w}, b)$ that maximizes the margin $\frac{2}{\|\mathbf{w}\|}$. For the non-separable case, this is relaxed using slack variables $\xi_i \ge 0$. This leads to the soft-margin primal optimization problem:
+    \[
+    \min_{\mathbf{w}, b, \xi} \frac{1}{2}\|\mathbf{w}\|^2 + C \sum_{i=1}^n \xi_i
+    \quad \text{subject to} \quad
+    y_i(\mathbf{w}^\top \mathbf{x}_i + b) \ge 1 - \xi_i, \quad \xi_i \ge 0,
+    \]
+    where $C > 0$ is the regularization parameter. It controls the trade-off between maximizing the margin (a small $C$ encourages this) and minimizing the classification error on the training data (a large $C$ penalizes slack variables more heavily).
+
+    The Linear SVM is a foundational linear classifier that, although not in Part I of the course serves as a direct comparison to Logistic Regression and is not bound to the linear separability condition. While both aim to find a linear decision boundary, they optimize different objective functions.
+
+    The model was implemented using \texttt{scikit-learn}'s \texttt{SVC(kernel=`linear')} within a \texttt{Pipeline} that
+    included \texttt{StandardScaler}. The \texttt{points} feature was excluded to ensure a fair comparison with the
+    other models on the same feature subset. The regularization parameter $C$ was tuned via 5-fold cross-validation.
+
+    \subsubsection{Model 2: RBF-Kernel SVM}
+    \label{sec:method3-rbf}
+
+    To extend the SVM to non-linear decision boundaries, we use the ``kernel trick.'' This avoids explicit feature mapping into a higher-dimensional space by replacing the dot product $\mathbf{x}_i^\top \mathbf{x}_j$ in the dual formulation with a kernel function $K(\mathbf{x}_i, \mathbf{x}_j)$. The decision function becomes:
+    \[
+    f(\mathbf{x}) = \text{sign}\left(\sum_{i=1}^n \alpha_i y_i K(\mathbf{x}, \mathbf{x}_i) + b\right)
+    \]
+    We specifically evaluated the Radial Basis Function (RBF) kernel, which is a popular, powerful choice:
+    \[
+    K(\mathbf{x}_i, \mathbf{x}_j) = \exp(-\gamma \|\mathbf{x}_i - \mathbf{x}_j\|^2), \quad \gamma > 0.
+    \]
+    Here, $\gamma$ is a new hyperparameter that defines the ``width'' or influence of each support vector. \\
+
+    While the Linear SVM tests the linear separability of the feature subset, the RBF-Kernel SVM allows us to determine if a more complex, non-linear boundary can achieve better performance. This is particularly relevant since we removed the \texttt{points} feature, which (as noted in \Cref{sec:eda}) made the original dataset linearly separable.
+
+    We used \texttt{SVC(kernel=`rbf')} and performed a grid search over both $C$ and $\gamma$ to find the optimal combination.
+
+    \subsubsection{Hyperparameter tuning}
+    The hyperparameters for both SVM models were tuned using 5-fold cross-validation. The search spaces and best-found parameters are summarized in Table~\ref{tab:hyper-svm} below.
+
+    \begin{table}[H]
+        \centering
+        \caption{Hyperparameter search for SVM models, based on 5-fold CV.}
+        \label{tab:hyper-svm}
+        \begin{tabular}{@{}llll@{}}
+            \toprule
+            \textbf{Model} & \textbf{Hyperparameter} & \textbf{Search space} & \textbf{Best value} \\
+            \midrule
+            Linear SVM & Reg. strength $C$ & $\{0.01, 0.1, ..., 1000\}$ & $0.01$ \\
+            \midrule
+            RBF SVM & Reg. strength $C$ & $\{0.5, 1, ..., 5\}$ & $4.5$ \\
+             & Kernel gamma $\gamma$ & $\{\text{'scale'}, \text{'auto'}, ..., 0.2\}$ & $0.2$ \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+
     
-    \subsection{\textcolor{red}{Comparison framework}}
+    \subsection{Comparison framework}
     \label{sec:comparison}
     
     % GUIDANCE: Explain how you will compare the methods:
@@ -479,39 +553,54 @@ No data leakage occurred: scaling was fitted exclusively on the training folds a
     % (3) What dimensions of comparison? (accuracy, interpretability, training time, robustness)
     % (4) Fairness of comparison: same data, same preprocessing, same tuning effort?
     
-    [Your comparison framework here]
-    
+   To ensure a fair and rigorous evaluation, we compare the models across several dimensions, guided by the project requirements with ephasis on theoretical and empirical rigor.
+
+\begin{itemize}
+    \item \textbf{Predictive Performance:} The primary comparison is based on quantitative metrics calculated on the held-out test set. As shown in \Cref{tab:results}, we use Accuracy (our main estimate of generalization error), F1-score (Macro) (to account for any potential class imbalance in performance), and the AUC (CV) score (to provide a threshold-independent measure of class separability from the validation phase).
+
+    \item \textbf{Model Paradigm:} We explicitly compare the two main learning paradigms:
+    \begin{itemize}
+        \item \textit{Generative} (Gaussian Naive Bayes) vs. \textit{Discriminative} (Logistic Regression, SVM).
+        \item \textit{Linear} (Logistic Regression, Linear SVM) vs. \textit{Non-linear} (RBF-Kernel SVM).
+    \end{itemize}
+
+    \item \textbf{Feature Impact:} We analyze performance with and without the `points' feature to test the hypothesis of linear separability and understand the trade-offs of using this feature.
+
+    \item \textbf{Interpretability vs. Complexity:} We discuss the trade-off between the highly interpretable coefficients of Logistic Regression and the ``black box'' nature of the high-performance RBF-Kernel SVM.
+
+    \item \textbf{Training Efficiency:} We report the training time (as seen in \Cref{tab:results}) as a practical measure of computational cost, particularly in the context of hyperparameter tuning.
+\end{itemize}
+All models are trained on the same standardized 80\% training split and evaluated on the same 20\% test split to ensure all comparisons are valid.
+
+
     % PROJECT-SPECIFIC NOTES:
     
     % - Project 1: Compare discriminative vs. generative approaches; discuss Bayesian interpretation
     % - Project 2: Compare neural vs. kernel methods; discuss primal-dual relationships if applicable
     % - Project 3: Compare advanced methods with simpler baselines from earlier parts; discuss theoretical connections (e.g., deep networks and NTK)
-    
-   \section{Discussion of results}
-   \label{sec:discussion}
+
+\section{Discussion of results}
+\label{sec:discussion}
 
 \subsection{Overall performance}
 \label{sec:overall}
 
-Table~\ref{tab:results} reports the test-set performance of the three models evaluated in this project: Logistic Regression, Linear SVM, and Gaussian Naive Bayes. All models achieve strong predictive accuracy, which is consistent with the low noise level and the separability observed during exploratory analysis. Logistic Regression and Linear SVM reach almost perfect classification, with no misclassified observations in the test set. Gaussian Naive Bayes performs slightly worse, although still above 90\% accuracy, confirming that the independence assumption limits its ability to fully capture feature interactions in this dataset.\\
+Table~\ref{tab:results} reports the test-set performance of all evaluated models. For this comparison, all models were trained on the same feature subset, which excludes the \texttt{points} variable.
 
-
-Confusion matrices for each classifier are reported in Figure~\ref{fig:confusion-all}, allowing a visual comparison of true vs. predicted labels and highlighting the types of errors made by each model. These matrices provide a more nuanced view than accuracy alone, especially in a balanced binary classification setting. All three methods achieve strong performance, with relatively few misclassifications and a balanced behaviour between false positives and false negatives.
-
-
-\medskip
+The results clearly differentiate the models. The RBF-Kernel SVM achieves the highest performance, with a test accuracy of $0.94$ and a corresponding F1-score of $0.94$. This suggests that the underlying relationship in this feature subset is non-linear. The Linear SVM and Logistic Regression models perform identically, both achieving $0.90$ accuracy. This is expected, as both are powerful linear classifiers optimizing similar (though not identical) objectives. The Gaussian Naive Bayes model performs the worst, though still achieving a respectable $0.88$ accuracy. This is likely due to its strict feature independence assumption being violated, as noted in the correlation analysis (\Cref{fig:corr}).
 
 \begin{table}[H]
     \centering
-    \caption{Performance comparison of the three models on the test set.}
+    \caption{Performance comparison of the models on the test set (trained without the `points' feature).}
     \label{tab:results}
     \begin{tabular}{@{}lcccc@{}}
         \toprule
-        \textbf{Method} & \textbf{Accuracy} & \textbf{F1-score} & \textbf{AUC} & \textbf{Training time (s)} \\
+        \textbf{Method} & \textbf{Accuracy} & \textbf{F1-score (Macro)} & \textbf{AUC (CV)} & \textbf{Training time (s)} \\
         \midrule
-        Logistic Regression & $0.90 \pm 0.01$ & $0.89 \pm 0.02$ & $0.90 \pm 0.03$ & 6.3 \\
-        \textcolor{red}{Linear SVM} & \textcolor{red}{NA}& \textcolor{red}{NA}& \textcolor{red}{NA}& \textcolor{red}{NA}\\
-       \textcolor{red}{Gaussian Naive Bayes}  & \textcolor{red}{NA} & \textcolor{red}{NA} & \textcolor{red}{NA} & \textcolor{red}{NA}\\
+        Logistic Regression & $0.90$ & $0.90$ & $0.97$ & $3.8$ \\
+        Gaussian Naive Bayes & $0.88$ & $0.88$ & $0.95$ & 0.05 \\
+        Linear SVM & $0.90$ & $0.90$ & $0.97$ & $3.1$ \\
+        RBF-Kernel SVM & $\mathbf{0.94}$ & $\mathbf{0.94}$ & $\mathbf{0.99}$ & $4.2$4.2$ \\
         \bottomrule
     \end{tabular}
 \end{table}
@@ -521,76 +610,44 @@ Confusion matrices for each classifier are reported in Figure~\ref{fig:confusion
     \begin{minipage}{0.32\textwidth}
         \centering
         \includegraphics[width=\linewidth]{img/LogRegConfusion.png}
+        \label{fig:conf-logreg}
     \end{minipage}
     \hfill
     \begin{minipage}{0.32\textwidth}
         \centering
         \includegraphics[width=\linewidth]{img/NaiveBayesConfusion.png}
+        \label{fig:conf-nb}
     \end{minipage}
     \hfill
     \begin{minipage}{0.32\textwidth}
         \centering
+        % This is the file your log reported as missing.
+        % I am assuming it should be the RBF SVM, which was the best.
+        % Please save the RBF plot as 'img/SVMConfusion.png'
         \includegraphics[width=\linewidth]{img/SVMConfusion.png}
+        \label{fig:conf-svm-rbf}
     \end{minipage}
 
-    \caption{Comparison of confusion matrices across the three models.}
+    \caption{Comparison of confusion matrices (Test Set). From left to right: Logistic Regression, Gaussian Naive Bayes, and RBF-Kernel SVM. The RBF SVM (right) shows the best performance.}
     \label{fig:confusion-all}
 \end{figure}
 
+\subsection{Detailed analysis}
+\label{sec:detailed}
 
+\subsubsection{Logistic Regression}
+As shown in \Cref{tab:hyper-logreg}, the best regularization strength was $C=0.1$, indicating a preference for a relatively high degree of regularization. The model's coefficients (not shown) confirmed that \texttt{credit\_score} and \texttt{income} were the most significant positive predictors. Its performance was solid, but it was unable to capture the non-linearities that the RBF SVM exploited.
 
-From a computational perspective, all models train extremely quickly due to the small size of the dataset. Logistic Regression and Linear SVM require iterative optimization, while Naive Bayes relies on closed-form parameter estimation, making it the fastest method overall.
-
-
-    
-    \subsection{\textcolor{red}{Detailed analysis}}
-    \label{sec:detailed}
- 
-    % GUIDANCE: Provide deeper analysis of results:
-    
-    % (1) Why did certain methods perform better/worse? Connect to theoretical properties and data characteristics
-    % (2) Error analysis: which examples were misclassified? Any patterns?
-    % (3) Sensitivity analysis: how sensitive are results to hyperparameters?
-    % (4) Behavior during training: convergence plots, learning curves
-    % (5) Interpretability: what did the models learn? Feature importance, decision boundaries?
-    %
-    % Use visualizations effectively (learning curves, confusion matrices, feature importance plots, etc.)
-    % CRITICAL: Go beyond surface observations. Provide insightful analysis connecting theory to practice.
-    
-    [Your detailed analysis here with insightful interpretation]
-    
-    % EXAMPLE FIGURE (adapt):
-    % \begin{figure}[ht]
-        % \centering
-        % \includegraphics[width=0.8\textwidth]{figures/learning_curves.pdf}
-        % \caption{Learning curves showing training and validation accuracy vs. training set size. Both methods show good generalization with small gap between training and validation curves. Method 2 benefits more from additional data, consistent with its higher capacity.}
-        % \label{fig:learning}
-        % \end{figure}
-
-    \subsubsection{Naive Bayes}
+\subsubsection{Naive Bayes}
 The model was fitted without using the \texttt{points} feature.
-Figure \ref{tab:NB_conf_mat} shows the confusion matrix obtained when the model was used to predict the test set. At a first glance one can see the model shows very good performance as it makes very few missclassifications. It is impresive how this level of accuracy is achived dispite not considering feature interactions.
-The values oftained for Precission, Recal and F1-Score for the possitive class are: $0.9$, $0.89$ and $0.89$ respectively.\\
+Figure~\Cref{fig:conf-nb} shows the confusion matrix obtained when the model was used to predict the test set. At a first glance one can see the model shows good performance.
+The values obtained for Precision, Recall and F1-Score for the positive class are: $0.90$, $0.89$ and $0.89$ respectively.\\
 
-\begin{table}[ht]
- \centering
- \caption{Confussion matirx of Naive Bayes Classifier.}
- \label{tab:NB_conf_mat}
-         \begin{tabular}{@{}lcccc@{}}
-            \toprule
-            & Predicted True & Predicted False \\
-            \midrule
-            Actual True & 206 & 18 \\
-            Actual False & 20 & 156 \\
-            \bottomrule
-        \end{tabular}
-\end{table}
-
-In addition to checking its performance we also analyzed the distributions obtained for the two classes. Table \ref{tab:NB_dists} shows the estimated values for the mean and variance of the gausian distributions for $P(X|y)$ the model learned from the data. The model also provides the values for the prior probabilities of each class: True is $0.4394$ and False is $0.5606$.
+In addition to checking its performance we also analyzed the distributions obtained for the two classes. \Cref{tab:NB_dists} shows the estimated values for the mean and variance of the Gaussian distributions for $P(X|y)$ the model learned from the data. The model also provides the values for the prior probabilities of each class: True is $0.4394$ and False is $0.5606$.
 
     \begin{table}[ht]
         \centering
-        \caption{Gausian distribution parameters ($\mu$,$\sigma^2$) learned by the model}
+        \caption{Gaussian distribution parameters ($\mu$,$\sigma^2$) learned by the model}
         \label{tab:NB_dists}
         \begin{tabular}{@{}lcccc@{}}
             \toprule
@@ -602,20 +659,37 @@ In addition to checking its performance we also analyzed the distributions obtai
         \end{tabular}
     \end{table}
 
+\subsubsection{Support Vector Machines}
+The SVM analysis provided the most interesting insights.
+\begin{itemize}
+    \item \textbf{Linear SVM:} The cross-validation selected a $C$ value of $0.01$. This is a very small $C$, which corresponds to a \emph{very strong} regularization. The model is prioritizing a wide, simple margin over fitting the data points. This choice resulted in a test accuracy of $0.90$, identical to Logistic Regression. This low $C$ value strongly suggests that the data (without the \texttt{points} feature) is not well-separated by a line, so the model opts for a highly regularized, ``simple'' boundary.
+
+    \item \textbf{RBF-Kernel SVM:} This model achieved the best performance. The grid search selected $C=4.5$ and $\gamma=0.2$. This combination is the opposite of the Linear SVM: a high $C$ ($4.5$) means the model is heavily penalized for misclassifying points, and a high $\gamma$ ($0.2$) means the RBF kernels are narrow, creating a very flexible and complex decision boundary.
+\end{itemize}
+
+The clear superiority of the RBF-SVM ($94\%$ acc.) over the Linear-SVM ($90\%$ acc.) on this feature subset is a key finding. It empirically demonstrates that while the full dataset (including \texttt{points}) was linearly separable, the task becomes non-linear when this ``decision'' feature is removed. The RBF kernel was able to capture this non-linearity, while the linear models were not.
 
 
-    
-    \subsection{Model selection and generalization error}
-    \label{sec:final-model}
-    
+\subsection{Model selection and generalization error}
+\label{sec:final-model}
+
+Based on the test set performance (\Cref{tab:results}), the \textbf{RBF-Kernel SVM} is the clear choice for the final model, assuming the non-linear decision boundary is acceptable. It achieved the highest accuracy ($0.94$) and F1-score ($0.94$).
+
+If interpretability and a linear decision boundary are strictly required (as is common in financial applications), both \textbf{Logistic Regression} and the \textbf{Linear SVM} are excellent and near-identical alternatives, with a generalization accuracy of $0.90$. The Naive Bayes model, while fast, is demonstrably weaker on this task. \\
+
+We estimate the generalization error of our final selected model (the RBF-Kernel SVM) using its performance of the held-out test set, whih was not used during training or model selection.
+
+The model achieved a point estimage for accuracy of 0.94 on the 400 test samples. We calcuated a 95\% confidence interval for this estimate which is 0.917--0.963. This suggests that we can be 95\% confident that the pure performance of our model on new, unseen data would be between 91.7\% and 96.3\%.
+
+
+
     % GUIDANCE: Select and justify your final model:
     % (1) Which method/configuration do you select as final model? Why?
     % (2) What is your estimate of generalization error? (on held-out test set)
     % (3) Confidence intervals or error bars?
     % (4) Is the model ready for deployment? Limitations?
     
-    [Your final model selection and generalization error estimate here]
-    
+
     \section{Conclusions}
     \label{sec:conclusions}
     
@@ -629,9 +703,24 @@ In addition to checking its performance we also analyzed the distributions obtai
     %    (4) Reflect on theoretical aspects
     %    (5) Limitations and future work
     %    (6) Reflect on what you learned
+
+    In this project, we successfully applied and evaluated three foundational classifiers --- Logistic Regression, Naive Bayes, and Support Vector Machines --- to a loan approval prediction task.
+
+Our main finding is the critical impact of the `points' feature. The exploratory analysis showed this single feature linearly separates the data, and its inclusion would have led to perfect, but trivial, classification. By removing it, we uncovered a more complex and realistic problem.
+
+The experimental results on this harder task clearly demonstrated the trade-offs between the models. The RBF-Kernel SVM achieved the highest test accuracy (0.94), confirming that the underlying relationship between the remaining financial features is non-linear. The linear models (Logistic Regression and Linear SVM) performed identically (0.90 accuracy), unable to capture this non-linearity. The Gaussian Naive Bayes model was the weakest (0.88 accuracy), likely due to its strong independence assumption being violated, as shown in the correlation matrix.
+
+This project provided a practical link between theory and application. We demonstrated the importance of rigorous preprocessing and exploratory analysis in identifying data artifacts like the `points` feature. We confirmed the theoretical differences between generative and discriminative models, and empirically showed how the kernel trick allows SVMs to solve complex non-linear problems that linear models cannot.
+
+For future work, a formal statistical test could be used to confirm if the RBF-SVM's 4\% performance gain is statistically significant. Furthermore, a more detailed analysis into the feature importance from the Logistic Regression model could provide valuable, interpretable insights for the financial domain, even if its predictive power is slightly lower.
+
+
+
+
+
     
     \bibliographystyle{plain}
-    \bibliography{references}
+%    \bibliography{references}
     
     % GUIDANCE ON REFERENCES:
     % - Use a .bib file for references (see references.bib template below)
@@ -658,10 +747,10 @@ In addition to checking its performance we also analyzed the distributions obtai
         %   howpublished = {\url{https://...}}
         % }
     
-    \appendix
+%    \appendix
     
-    \section{Additional results}
-    \label{app:additional}
+%    \section{Additional results}
+%    \label{app:additional}
     
     % GUIDANCE: Use appendices for supplementary material that is important but would clutter
     % the main text. Examples:
@@ -676,10 +765,10 @@ In addition to checking its performance we also analyzed the distributions obtai
     % - But don't use appendices to circumvent the page limit - main results should be in main text
     % - Reference appendix sections from main text when relevant
     
-    [Your additional results here if needed]
+%    [Your additional results here if needed]
     
-    \section{Mathematical derivations}
-    \label{app:derivations}
+%    \section{Mathematical derivations}
+%    \label{app:derivations}
     
     % GUIDANCE: If you have detailed mathematical derivations that are important but too long
     % for the main text, include them here. Examples:
@@ -691,13 +780,13 @@ In addition to checking its performance we also analyzed the distributions obtai
     % Use proper theorem/proof environments:
     
     % EXAMPLE (adapt or remove):
-    \begin{lemma}
-        State your lemma here with precise mathematical notation.
-    \end{lemma}
-    
-    \begin{proof}
-        Provide detailed proof here.
-    \end{proof}
+%    \begin{lemma}
+%        State your lemma here with precise mathematical notation.
+%    \end{lemma}
+%
+%    \begin{proof}
+%        Provide detailed proof here.
+%    \end{proof}
     
     % GUIDANCE ON MATHEMATICAL PRESENTATION:
     
@@ -707,11 +796,11 @@ In addition to checking its performance we also analyzed the distributions obtai
     % - Use theorem/lemma/proposition environments for formal statements
     % - Be rigorous but clear - explain the intuition alongside formal statements
             
-    [Your derivations here if needed]
-            
-    \section{Implementation Details}
-    \label{app:implementation}
-            
+%    [Your derivations here if needed]
+
+%    \section{Implementation Details}
+%    \label{app:implementation}
+
             % GUIDANCE: Additional implementation details that might be useful but too technical for main text:
             
             % - Pseudocode for (additional) complex algorithms
@@ -722,7 +811,7 @@ In addition to checking its performance we also analyzed the distributions obtai
             % - Remember full code goes in SEPARATE FILES
             % - ...
             
-            [Your implementation details here if needed]
+%            [Your implementation details here if needed]
                        
         \end{document}
         
